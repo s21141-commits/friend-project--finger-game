@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>손가락 텔레파시 5회</title>
+<style>
+:root{--bg:#fff7e6;--card:#fff;--ink:#3a2a1a;--accent:#ff7a3d;--ok:#2fa84f;--no:#e5484d;--soft:#ffe3c4;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a2118;--card:#3a2d20;--ink:#fff1de;--soft:#55402b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#2a2118;--card:#3a2d20;--ink:#fff1de;--soft:#55402b;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.wrap{max-width:640px;margin:0 auto;padding:16px;text-align:center}
+h1{font-size:1.7rem;margin:8px 0}
+.card{background:var(--card);border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.big{font-size:5rem;font-weight:800;color:var(--accent);line-height:1}
+button{font:inherit;font-size:1.2rem;border:0;border-radius:14px;padding:12px 20px;margin:4px;background:var(--accent);color:#fff;cursor:pointer}
+button.ok{background:var(--ok)}button.no{background:var(--no)}
+.count{font-size:5rem;font-weight:800;color:var(--accent);min-height:7rem;display:flex;align-items:center;justify-content:center}
+.dots span{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--soft);margin:0 3px}
+.dots span.done{background:var(--ok)}.dots span.miss{background:var(--no)}.dots span.cur{outline:3px solid var(--accent)}
+.msg{font-size:1.4rem;min-height:2rem;margin:8px 0}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🖐️ 손가락 텔레파시 5회 🖐️</h1>
+<div class="dots" id="dots"></div>
+
+<div id="start" class="card">
+<p>짝과 함께 "하나, 둘, 셋!" 하고 손가락을 1~5개 펼쳐요.<br>둘의 합이 <b>제시된 숫자</b>가 되면 성공!</p>
+<button onclick="startGame()">게임 시작!</button>
+</div>
+
+<div id="game" class="card hide">
+<div>이번 라운드 <span id="rn">1</span> / 5</div>
+<div>손가락 합이 이 숫자가 되게 맞춰요!</div>
+<div class="big" id="target">?</div>
+<div class="count" id="count"></div>
+<button id="goReal" onclick="countdown()">하나, 둘, 셋! 시작</button>
+<div id="judge" class="hide">
+<p>손가락 합이 맞았나요?</p>
+<button class="ok" onclick="judge(true)">⭕ 성공</button>
+<button class="no" onclick="judge(false)">❌ 실패</button>
+</div>
+<div class="msg" id="msg"></div>
+<button id="next" class="hide" onclick="nextRound()">다음 ▶</button>
+</div>
+
+<div id="end" class="card hide">
+<h2>게임 끝!</h2>
+<div class="big" id="score"></div>
+<div class="msg" id="endmsg"></div>
+<button onclick="startGame()">다시 하기</button>
+</div>
+</div>
+
+<script>
+var round=0,targets=[],results=[],busy=false;
+function $(i){return document.getElementById(i)}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function show(id){['start','game','end'].forEach(function(x){$(x).classList.toggle('hide',x!=id)})}
+function dots(){var s='';for(var i=0;i<5;i++){var c=results[i]===true?'done':results[i]===false?'miss':'';if(i==round&&results[i]===undefined)c+=' cur';s+='<span class="'+c+'"></span>'}$('dots').innerHTML=s}
+function startGame(){targets=shuffle([2,3,4,5,6,7,8,9,10]).slice(0,5);results=[];round=0;show('game');loadRound()}
+function loadRound(){busy=false;$('rn').textContent=round+1;$('target').textContent=targets[round];$('count').textContent='';$('msg').textContent='';
+ $('next').classList.add('hide');$('goReal').classList.remove('hide');$('judge').classList.add('hide');dots()}
+function countdown(){if(busy)return;busy=true;$('goReal').classList.add('hide');
+ var w=['하나','둘','셋!'],i=0;
+ (function t(){if(i<3){$('count').textContent=w[i++];setTimeout(t,800)}else{$('count').textContent='🖐️🖐️';$('judge').classList.remove('hide')}})()}
+function judge(ok){results[round]=ok;dots();$('judge').classList.add('hide');
+ $('msg').textContent=ok?'🎉 텔레파시 성공!':'😅 아쉬워요, 다음엔 성공!';
+ $('msg').style.color=ok?'var(--ok)':'var(--no)';
+ $('next').textContent=round==4?'결과 보기 ▶':'다음 ▶';$('next').classList.remove('hide')}
+function nextRound(){round++;if(round>=5){var n=results.filter(Boolean).length;show('end');
+ $('score').textContent=n+' / 5';$('endmsg').textContent=n==5?'🏆 완벽한 텔레파시!':n>=3?'👏 대단해요!':'💪 다시 도전해 볼까요?';dots()}else loadRound()}
+</script>
+</body>
+</html>
